@@ -231,7 +231,12 @@ cmd_security() {
         GOBIN="$HOME/.local/bin" go install "github.com/zricethezav/gitleaks/v8@${GITLEAKS_VERSION}"
         export PATH="$HOME/.local/bin:$PATH"
     fi
-    gitleaks version | grep -q "${GITLEAKS_VERSION#v}" || die "gitleaks is not $GITLEAKS_VERSION"
+    # A `go install` build reports no version of its own; read the module
+    # version recorded in the binary instead.
+    local installed
+    installed="$(go version -m "$(command -v gitleaks)" 2>/dev/null | awk '$1 == "mod" { print $3 }')"
+    [[ "$installed" == "$GITLEAKS_VERSION" ]] ||
+        die "gitleaks is '${installed:-unknown}', expected $GITLEAKS_VERSION"
     log "secret scan ($s)"
     if [[ "$s" == full ]]; then
         gitleaks git --no-banner --redact .
