@@ -1,0 +1,139 @@
+{"id": "selector_simple_eq", "query": "{service_name=\"frontend\"}", "expect": "accept", "source": "unit_test", "tags": ["selector"]}
+{"id": "selector_multiple_matchers", "query": "{service_name=\"web\", severity=~\"error|warn\"}", "expect": "accept", "source": "unit_test", "tags": ["selector", "regex"]}
+{"id": "selector_neq", "query": "{service_name=\"web\", env!=\"debug\"}", "expect": "accept", "source": "unit_test", "tags": ["selector", "neq"]}
+{"id": "selector_nre", "query": "{service_name=\"web\", env!~\"test.*\"}", "expect": "accept", "source": "unit_test", "tags": ["selector", "nre"]}
+{"id": "selector_neq_only_regex", "query": "{service_name!~\"test.*\"}", "expect": "accept", "source": "upstream", "tags": ["selector", "validation", "loki_validation"]}
+{"id": "selector_neq_with_eq", "query": "{service_name=\"web\", env!=\"dev\"}", "expect": "accept", "source": "unit_test", "tags": ["selector"]}
+{"id": "selector_empty", "query": "{}", "expect": "accept", "source": "upstream", "tags": ["selector", "validation", "loki_validation"]}
+{"id": "selector_neq_only", "query": "{service_name!=\"web\"}", "expect": "accept", "source": "upstream", "tags": ["selector", "validation", "loki_validation"]}
+{"id": "selector_empty_eq_value", "query": "{service_name=\"\"}", "expect": "accept", "source": "upstream", "tags": ["selector", "validation", "loki_validation"]}
+{"id": "selector_regex_matches_empty", "query": "{service_name=~\".*\"}", "expect": "accept", "source": "upstream", "tags": ["selector", "validation", "loki_validation"]}
+{"id": "selector_regex_alternation_empty", "query": "{service_name=~\"a|\"}", "expect": "accept", "source": "upstream", "tags": ["selector", "validation", "loki_validation"]}
+{"id": "selector_nonempty_regex_accept", "query": "{service_name=~\"web|api\"}", "expect": "accept", "source": "upstream", "tags": ["selector", "regex"]}
+{"id": "line_filter_contains", "query": "{service_name=\"web\"} |= \"error\"", "expect": "accept", "source": "unit_test", "tags": ["line_filter"]}
+{"id": "line_filter_not_contains", "query": "{service_name=\"web\"} != \"debug\"", "expect": "accept", "source": "unit_test", "tags": ["line_filter"]}
+{"id": "line_filter_regex", "query": "{service_name=\"web\"} |~ \"err.*timeout\"", "expect": "accept", "source": "unit_test", "tags": ["line_filter", "regex"]}
+{"id": "line_filter_not_regex", "query": "{service_name=\"web\"} !~ \"health.*check\"", "expect": "accept", "source": "unit_test", "tags": ["line_filter", "regex"]}
+{"id": "line_filter_multiple", "query": "{service_name=\"web\"} |= \"error\" != \"debug\"", "expect": "accept", "source": "unit_test", "tags": ["line_filter"]}
+{"id": "line_filter_backtick_contains", "query": "{service_name=\"web\"} |= `error`", "expect": "accept", "source": "grafana", "tags": ["line_filter", "backtick"]}
+{"id": "line_filter_backtick_empty", "query": "{service_name=\"web\"} |= ``", "expect": "accept", "source": "grafana", "tags": ["line_filter", "backtick"]}
+{"id": "line_filter_backtick_regex", "query": "{service_name=\"web\"} |~ `err.*`", "expect": "accept", "source": "grafana", "tags": ["line_filter", "backtick"]}
+{"id": "line_filter_backtick_not_contains", "query": "{service_name=\"web\"} != `debug`", "expect": "accept", "source": "grafana", "tags": ["line_filter", "backtick"]}
+{"id": "line_filter_backtick_not_regex", "query": "{service_name=\"web\"} !~ `health.*`", "expect": "accept", "source": "grafana", "tags": ["line_filter", "backtick"]}
+{"id": "drop_error_simple", "query": "{service_name=\"web\"} | drop __error__", "expect": "accept", "source": "grafana", "tags": ["pipeline", "drop"]}
+{"id": "drop_error_details", "query": "{service_name=\"web\"} | drop __error__, __error_details__", "expect": "accept", "source": "grafana", "tags": ["pipeline", "drop"]}
+{"id": "drop_error_with_line_filter", "query": "{service_name=\"web\"} | drop __error__, __error_details__ |= \"timeout\"", "expect": "accept", "source": "grafana", "tags": ["pipeline", "drop", "line_filter"]}
+{"id": "drop_non_error_label", "query": "{service_name=\"web\"} | drop level", "expect": "accept", "source": "regression", "tags": ["pipeline", "drop"]}
+{"id": "rate_simple", "query": "rate({service_name=\"web\"}[5m])", "expect": "accept", "source": "unit_test", "tags": ["metric", "rate"]}
+{"id": "count_over_time_simple", "query": "count_over_time({severity=\"error\"}[1h])", "expect": "accept", "source": "unit_test", "tags": ["metric", "count_over_time"]}
+{"id": "sum_by_rate", "query": "sum by (service_name) (rate({severity=\"error\"}[5m]))", "expect": "accept", "source": "unit_test", "tags": ["metric", "aggregation"]}
+{"id": "sum_by_count_over_time", "query": "sum by (level) (count_over_time({service_name=\"web\"}[5m]))", "expect": "accept", "source": "grafana", "tags": ["metric", "aggregation"]}
+{"id": "grafana_volume_query", "query": "sum by (level, detected_level) (count_over_time({service_name=\"demo-logs\"} | drop __error__[1m]))", "expect": "accept", "source": "grafana", "tags": ["metric", "aggregation", "drop", "grafana_explore"]}
+{"id": "grafana_explore_default_filter", "query": "{service_name=\"demo-logs\"} |= ``", "expect": "accept", "source": "grafana", "tags": ["line_filter", "backtick", "grafana_explore"]}
+{"id": "rate_with_line_filter", "query": "rate({service_name=\"web\"} |= \"error\" [5m])", "expect": "accept", "source": "upstream", "tags": ["metric", "line_filter"]}
+{"id": "rate_with_backtick_filter", "query": "rate({service_name=\"web\"} |= `error` [5m])", "expect": "accept", "source": "grafana", "tags": ["metric", "line_filter", "backtick"]}
+{"id": "topk", "query": "topk(5, rate({service_name=\"web\"}[5m]))", "expect": "accept", "source": "upstream", "tags": ["metric", "aggregation"]}
+{"id": "bottomk", "query": "bottomk(3, count_over_time({severity=\"error\"}[1h]))", "expect": "accept", "source": "upstream", "tags": ["metric", "aggregation"]}
+{"id": "avg_by", "query": "avg by (service_name) (rate({service_name=~\".+\"}[5m]))", "expect": "accept", "source": "upstream", "tags": ["metric", "aggregation"]}
+{"id": "max_without", "query": "max without (instance) (rate({service_name=\"web\"}[5m]))", "expect": "accept", "source": "upstream", "tags": ["metric", "aggregation"]}
+{"id": "binary_add", "query": "sum(rate({service_name=\"a\"}[5m])) + sum(rate({service_name=\"b\"}[5m]))", "expect": "accept", "source": "unit_test", "tags": ["binary_op"]}
+{"id": "binary_div", "query": "sum(rate({service_name=\"a\"}[5m])) / sum(rate({service_name=\"b\"}[5m]))", "expect": "accept", "source": "unit_test", "tags": ["binary_op"]}
+{"id": "binary_sub", "query": "sum(rate({service_name=\"a\"}[5m])) - sum(rate({service_name=\"b\"}[5m]))", "expect": "accept", "source": "unit_test", "tags": ["binary_op"]}
+{"id": "binary_mul", "query": "sum(rate({service_name=\"a\"}[5m])) * sum(rate({service_name=\"b\"}[5m]))", "expect": "accept", "source": "unit_test", "tags": ["binary_op"]}
+{"id": "binary_mod", "query": "sum(rate({service_name=\"a\"}[5m])) % sum(rate({service_name=\"b\"}[5m]))", "expect": "accept", "source": "unit_test", "tags": ["binary_op"]}
+{"id": "binary_pow", "query": "sum(rate({service_name=\"a\"}[5m])) ^ sum(rate({service_name=\"b\"}[5m]))", "expect": "accept", "source": "unit_test", "tags": ["binary_op"]}
+{"id": "selector_escaped_quote", "query": "{service_name=\"web\\\"app\"}", "expect": "accept", "source": "upstream", "tags": ["selector", "escaping"]}
+{"id": "selector_brace_in_value", "query": "{service_name=~\"a}b\"}", "expect": "accept", "source": "upstream", "tags": ["selector", "escaping"]}
+{"id": "duration_seconds", "query": "rate({service_name=\"web\"}[30s])", "expect": "accept", "source": "upstream", "tags": ["metric", "duration"]}
+{"id": "duration_minutes", "query": "rate({service_name=\"web\"}[5m])", "expect": "accept", "source": "upstream", "tags": ["metric", "duration"]}
+{"id": "duration_hours", "query": "rate({service_name=\"web\"}[1h])", "expect": "accept", "source": "upstream", "tags": ["metric", "duration"]}
+{"id": "pipeline_json_bare", "query": "{service_name=\"web\"} | json", "expect": "accept", "source": "upstream", "tags": ["pipeline", "json"]}
+{"id": "pipeline_json_with_labels", "query": "{service_name=\"web\"} | json level, msg", "expect": "accept", "source": "upstream", "tags": ["pipeline", "json"]}
+{"id": "pipeline_json_then_line_filter", "query": "{service_name=\"web\"} | json |= \"error\"", "expect": "accept", "source": "upstream", "tags": ["pipeline", "json"]}
+{"id": "pipeline_json_in_metric", "query": "rate({service_name=\"web\"} | json [5m])", "expect": "accept", "source": "upstream", "tags": ["pipeline", "json", "metric"]}
+{"id": "pipeline_logfmt_bare", "query": "{service_name=\"web\"} | logfmt", "expect": "accept", "source": "upstream", "tags": ["pipeline", "logfmt"]}
+{"id": "pipeline_logfmt_with_labels", "query": "{service_name=\"web\"} | logfmt level, msg", "expect": "accept", "source": "upstream", "tags": ["pipeline", "logfmt"]}
+{"id": "pipeline_logfmt_then_line_filter", "query": "{service_name=\"web\"} | logfmt |= \"error\"", "expect": "accept", "source": "upstream", "tags": ["pipeline", "logfmt"]}
+{"id": "pipeline_logfmt_in_metric", "query": "rate({service_name=\"web\"} | logfmt [5m])", "expect": "accept", "source": "upstream", "tags": ["pipeline", "logfmt", "metric"]}
+{"id": "pipeline_label_filter", "query": "{service_name=\"web\"} | severity=\"error\"", "expect": "accept", "source": "upstream", "tags": ["pipeline", "label_filter"]}
+{"id": "pipeline_line_format", "query": "{service_name=\"web\"} | line_format \"{{.body}}\"", "expect": "accept", "source": "upstream", "tags": ["pipeline", "line_format"]}
+{"id": "pipeline_label_format", "query": "{service_name=\"web\"} | label_format dst=\"src\"", "expect": "accept", "source": "upstream", "tags": ["pipeline", "label_format"]}
+{"id": "pipeline_unwrap_plain", "query": "sum_over_time({service_name=\"web\"} | unwrap duration [5m])", "expect": "accept", "source": "upstream", "tags": ["pipeline", "unwrap"]}
+{"id": "ip_filter_unsupported", "query": "{service_name=\"web\"} |= ip(\"127.0.0.1\")", "expect": "reject", "source": "upstream", "tags": ["line_filter", "unsupported"]}
+{"id": "label_replace_unsupported", "query": "label_replace(rate({service_name=\"web\"}[5m]), \"dst\", \"$1\", \"src\", \"(.*)\")", "expect": "reject", "source": "upstream", "tags": ["metric", "unsupported"]}
+{"id": "bytes_rate", "query": "bytes_rate({service_name=\"web\"}[5m])", "expect": "accept", "source": "upstream", "tags": ["metric", "bytes_rate"]}
+{"id": "bytes_over_time", "query": "bytes_over_time({service_name=\"web\"}[5m])", "expect": "accept", "source": "upstream", "tags": ["metric", "bytes_over_time"]}
+{"id": "whitespace_tolerance", "query": "  { service_name = \"web\" }  |=  \"error\"  ", "expect": "accept", "source": "regression", "tags": ["whitespace"]}
+{"id": "count_by_multiple_labels", "query": "count by (service_name, severity) (rate({service_name=~\".+\"}[5m]))", "expect": "accept", "source": "upstream", "tags": ["metric", "aggregation"]}
+{"id": "metric_empty_selector", "query": "rate({}[5m])", "expect": "accept", "source": "upstream", "tags": ["selector", "validation", "loki_validation"]}
+{"id": "binop_empty_selector", "query": "sum(rate({}[5m])) + sum(rate({a=\"b\"}[5m]))", "expect": "accept", "source": "upstream", "tags": ["binary_op", "validation", "loki_validation"]}
+{"id": "comparison_gt_scalar", "query": "rate({service_name=\"web\"}[5m]) > 100", "expect": "accept", "source": "upstream", "tags": ["binary_op", "comparison"]}
+{"id": "comparison_lt_scalar", "query": "rate({service_name=\"web\"}[5m]) < 0.5", "expect": "accept", "source": "upstream", "tags": ["binary_op", "comparison"]}
+{"id": "comparison_gte_scalar", "query": "rate({service_name=\"web\"}[5m]) >= 10", "expect": "accept", "source": "upstream", "tags": ["binary_op", "comparison"]}
+{"id": "comparison_lte_scalar", "query": "rate({service_name=\"web\"}[5m]) <= 1000", "expect": "accept", "source": "upstream", "tags": ["binary_op", "comparison"]}
+{"id": "comparison_eq_scalar", "query": "rate({service_name=\"web\"}[5m]) == 0", "expect": "accept", "source": "upstream", "tags": ["binary_op", "comparison"]}
+{"id": "comparison_neq_scalar", "query": "rate({service_name=\"web\"}[5m]) != 0", "expect": "accept", "source": "upstream", "tags": ["binary_op", "comparison"]}
+{"id": "comparison_eq_vector_vector", "query": "sum(rate({service_name=\"a\"}[5m])) == sum(rate({service_name=\"b\"}[5m]))", "expect": "accept", "source": "upstream", "tags": ["binary_op", "comparison"]}
+{"id": "comparison_bool_gt", "query": "rate({service_name=\"web\"}[5m]) > bool 0", "expect": "accept", "source": "upstream", "tags": ["binary_op", "comparison", "bool"]}
+{"id": "comparison_bool_eq", "query": "rate({service_name=\"web\"}[5m]) == bool 0", "expect": "accept", "source": "upstream", "tags": ["binary_op", "comparison", "bool"]}
+{"id": "comparison_bool_neq", "query": "rate({service_name=\"web\"}[5m]) != bool 0", "expect": "accept", "source": "upstream", "tags": ["binary_op", "comparison", "bool"]}
+{"id": "comparison_bool_lt", "query": "rate({service_name=\"web\"}[5m]) < bool 100", "expect": "accept", "source": "upstream", "tags": ["binary_op", "comparison", "bool"]}
+{"id": "comparison_bool_gte", "query": "rate({service_name=\"web\"}[5m]) >= bool 1", "expect": "accept", "source": "upstream", "tags": ["binary_op", "comparison", "bool"]}
+{"id": "comparison_bool_lte", "query": "rate({service_name=\"web\"}[5m]) <= bool 1000", "expect": "accept", "source": "upstream", "tags": ["binary_op", "comparison", "bool"]}
+{"id": "logical_and", "query": "rate({service_name=\"web\"}[5m]) > 100 and rate({service_name=\"web\"}[5m]) < 1000", "expect": "accept", "source": "upstream", "tags": ["binary_op", "logical"]}
+{"id": "logical_or", "query": "rate({service_name=\"web\"}[5m]) > 100 or rate({service_name=\"web\"}[5m]) == 0", "expect": "accept", "source": "upstream", "tags": ["binary_op", "logical"]}
+{"id": "logical_unless", "query": "rate({service_name=\"web\"}[5m]) > 100 unless rate({service_name=\"web\"}[5m]) > 500", "expect": "accept", "source": "upstream", "tags": ["binary_op", "logical"]}
+{"id": "logical_and_unless_precedence", "query": "rate({service_name=\"a\"}[5m]) > 0 and rate({service_name=\"b\"}[5m]) > 0 unless rate({service_name=\"c\"}[5m]) > 0", "expect": "accept", "source": "upstream", "tags": ["binary_op", "logical", "precedence"]}
+{"id": "logical_or_lower_than_and", "query": "rate({service_name=\"a\"}[5m]) > 0 and rate({service_name=\"b\"}[5m]) > 0 or rate({service_name=\"c\"}[5m]) > 0", "expect": "accept", "source": "upstream", "tags": ["binary_op", "logical", "precedence"]}
+{"id": "scalar_integer", "query": "rate({service_name=\"web\"}[5m]) + 100", "expect": "accept", "source": "upstream", "tags": ["binary_op", "scalar"]}
+{"id": "scalar_float", "query": "rate({service_name=\"web\"}[5m]) * 0.5", "expect": "accept", "source": "upstream", "tags": ["binary_op", "scalar"]}
+{"id": "scalar_scientific", "query": "rate({service_name=\"web\"}[5m]) > 1e3", "expect": "accept", "source": "upstream", "tags": ["binary_op", "scalar"]}
+{"id": "scalar_nan", "query": "rate({service_name=\"web\"}[5m]) == NaN", "expect": "accept", "source": "upstream", "tags": ["binary_op", "scalar"]}
+{"id": "scalar_inf", "query": "rate({service_name=\"web\"}[5m]) < Inf", "expect": "accept", "source": "upstream", "tags": ["binary_op", "scalar"]}
+{"id": "scalar_lhs", "query": "100 < rate({service_name=\"web\"}[5m])", "expect": "accept", "source": "upstream", "tags": ["binary_op", "scalar"]}
+{"id": "scalar_negative", "query": "rate({service_name=\"web\"}[5m]) > -1", "expect": "accept", "source": "upstream", "tags": ["binary_op", "scalar"]}
+{"id": "comparison_higher_than_add", "query": "rate({service_name=\"a\"}[5m]) + rate({service_name=\"b\"}[5m]) > 100", "expect": "accept", "source": "upstream", "tags": ["binary_op", "precedence"]}
+{"id": "drop_empty_reject", "query": "{service_name=\"web\"} | drop", "expect": "reject", "source": "regression", "tags": ["pipeline", "drop", "validation"]}
+{"id": "keep_label", "query": "{service_name=\"web\"} | keep level", "expect": "accept", "source": "upstream", "tags": ["pipeline", "keep"]}
+{"id": "offset_rate", "query": "rate({service_name=\"web\"}[5m] offset 1h)", "expect": "accept", "source": "upstream", "tags": ["metric", "offset"]}
+{"id": "offset_count_over_time", "query": "count_over_time({service_name=\"web\"}[10m] offset 30m)", "expect": "accept", "source": "upstream", "tags": ["metric", "offset"]}
+{"id": "offset_with_aggregation", "query": "sum by (service_name) (rate({service_name=\"web\"}[5m] offset 2h))", "expect": "accept", "source": "upstream", "tags": ["metric", "offset", "aggregation"]}
+{"id": "offset_seconds", "query": "rate({service_name=\"web\"}[1m] offset 30s)", "expect": "accept", "source": "upstream", "tags": ["metric", "offset"]}
+{"id": "offset_with_line_filter", "query": "rate({service_name=\"web\"} |= \"error\" [5m] offset 1h)", "expect": "accept", "source": "upstream", "tags": ["metric", "offset", "line_filter"]}
+{"id": "unwrap_plain_sum_over_time", "query": "sum_over_time({service_name=\"web\"} | unwrap latency [5m])", "expect": "accept", "source": "upstream", "tags": ["pipeline", "unwrap", "metric"]}
+{"id": "unwrap_plain_avg_over_time", "query": "avg_over_time({service_name=\"web\"} | unwrap response_time [5m])", "expect": "accept", "source": "upstream", "tags": ["pipeline", "unwrap", "metric"]}
+{"id": "unwrap_plain_min_over_time", "query": "min_over_time({service_name=\"web\"} | unwrap latency [10m])", "expect": "accept", "source": "upstream", "tags": ["pipeline", "unwrap", "metric"]}
+{"id": "unwrap_plain_max_over_time", "query": "max_over_time({service_name=\"web\"} | unwrap latency [10m])", "expect": "accept", "source": "upstream", "tags": ["pipeline", "unwrap", "metric"]}
+{"id": "unwrap_with_line_filter", "query": "sum_over_time({service_name=\"web\"} |= \"error\" | unwrap duration [5m])", "expect": "accept", "source": "upstream", "tags": ["pipeline", "unwrap", "line_filter", "metric"]}
+{"id": "unwrap_with_vector_agg", "query": "sum by (service_name) (sum_over_time({service_name=\"web\"} | unwrap latency [5m]))", "expect": "accept", "source": "upstream", "tags": ["pipeline", "unwrap", "aggregation", "metric"]}
+{"id": "unwrap_duration_conversion", "query": "sum_over_time({service_name=\"web\"} | unwrap duration(response_time) [5m])", "expect": "accept", "source": "upstream", "tags": ["pipeline", "unwrap"]}
+{"id": "unwrap_bytes_conversion", "query": "sum_over_time({service_name=\"web\"} | unwrap bytes(payload_size) [5m])", "expect": "accept", "source": "upstream", "tags": ["pipeline", "unwrap"]}
+{"id": "unwrap_stddev_over_time", "query": "stddev_over_time({service_name=\"web\"} | unwrap latency [5m])", "expect": "accept", "source": "upstream", "tags": ["pipeline", "unwrap", "metric"]}
+{"id": "unwrap_stdvar_over_time", "query": "stdvar_over_time({service_name=\"web\"} | unwrap latency [5m])", "expect": "accept", "source": "upstream", "tags": ["pipeline", "unwrap", "metric"]}
+{"id": "unwrap_first_over_time", "query": "first_over_time({service_name=\"web\"} | unwrap latency [5m])", "expect": "accept", "source": "upstream", "tags": ["pipeline", "unwrap", "metric"]}
+{"id": "unwrap_last_over_time", "query": "last_over_time({service_name=\"web\"} | unwrap latency [5m])", "expect": "accept", "source": "upstream", "tags": ["pipeline", "unwrap", "metric"]}
+{"id": "unwrap_with_offset", "query": "sum_over_time({service_name=\"web\"} | unwrap latency [5m] offset 1h)", "expect": "accept", "source": "upstream", "tags": ["pipeline", "unwrap", "offset", "metric"]}
+{"id": "matching_on_arithmetic", "query": "rate({a=\"1\"}[5m]) / on(service) rate({b=\"2\"}[5m])", "expect": "accept", "source": "upstream", "tags": ["binop", "matching", "on"]}
+{"id": "matching_ignoring_arithmetic", "query": "rate({a=\"1\"}[5m]) + ignoring(instance) rate({b=\"2\"}[5m])", "expect": "accept", "source": "upstream", "tags": ["binop", "matching", "ignoring"]}
+{"id": "matching_on_group_left", "query": "rate({a=\"1\"}[5m]) * on(service) group_left(region) rate({b=\"2\"}[5m])", "expect": "accept", "source": "upstream", "tags": ["binop", "matching", "on", "group_left"]}
+{"id": "matching_on_group_left_empty", "query": "rate({a=\"1\"}[5m]) * on(service) group_left() rate({b=\"2\"}[5m])", "expect": "accept", "source": "upstream", "tags": ["binop", "matching", "on", "group_left"]}
+{"id": "matching_on_group_left_no_parens", "query": "rate({a=\"1\"}[5m]) * on(service) group_left rate({b=\"2\"}[5m])", "expect": "accept", "source": "upstream", "tags": ["binop", "matching", "on", "group_left"]}
+{"id": "matching_ignoring_group_right", "query": "rate({a=\"1\"}[5m]) / ignoring(instance) group_right() rate({b=\"2\"}[5m])", "expect": "accept", "source": "upstream", "tags": ["binop", "matching", "ignoring", "group_right"]}
+{"id": "matching_ignoring_group_right_labels", "query": "rate({a=\"1\"}[5m]) / ignoring(instance) group_right(region, zone) rate({b=\"2\"}[5m])", "expect": "accept", "source": "upstream", "tags": ["binop", "matching", "ignoring", "group_right"]}
+{"id": "matching_on_empty_labels", "query": "rate({a=\"1\"}[5m]) + on() rate({b=\"2\"}[5m])", "expect": "accept", "source": "upstream", "tags": ["binop", "matching", "on"]}
+{"id": "matching_on_multiple_labels", "query": "rate({a=\"1\"}[5m]) + on(service, instance, region) rate({b=\"2\"}[5m])", "expect": "accept", "source": "upstream", "tags": ["binop", "matching", "on"]}
+{"id": "matching_comparison_on", "query": "rate({a=\"1\"}[5m]) > on(service) rate({b=\"2\"}[5m])", "expect": "accept", "source": "upstream", "tags": ["binop", "matching", "on", "comparison"]}
+{"id": "matching_comparison_bool_on", "query": "rate({a=\"1\"}[5m]) > bool on(service) rate({b=\"2\"}[5m])", "expect": "accept", "source": "upstream", "tags": ["binop", "matching", "on", "comparison", "bool"]}
+{"id": "matching_logical_on", "query": "rate({a=\"1\"}[5m]) > 1 and on(service) rate({b=\"2\"}[5m]) > 2", "expect": "accept", "source": "upstream", "tags": ["binop", "matching", "on", "logical"]}
+{"id": "matching_logical_ignoring", "query": "rate({a=\"1\"}[5m]) > 1 or ignoring(instance) rate({b=\"2\"}[5m]) > 2", "expect": "accept", "source": "upstream", "tags": ["binop", "matching", "ignoring", "logical"]}
+{"id": "matching_unless_on", "query": "rate({a=\"1\"}[5m]) > 1 unless on(service) rate({b=\"2\"}[5m]) > 2", "expect": "accept", "source": "upstream", "tags": ["binop", "matching", "on", "logical"]}
+{"id": "matching_on_numeric_label_reject", "query": "rate({a=\"1\"}[5m]) + on(123) rate({b=\"2\"}[5m])", "expect": "reject", "source": "upstream", "tags": ["binop", "matching", "on", "error"]}
+{"id": "regexp_basic", "query": "{app=\"web\"} | regexp \"(?P<method>\\\\w+)\"", "expect": "accept", "source": "upstream", "tags": ["pipeline", "regexp"]}
+{"id": "regexp_with_line_filter", "query": "{app=\"web\"} | regexp \"(?P<level>\\\\w+)\" |= \"error\"", "expect": "accept", "source": "upstream", "tags": ["pipeline", "regexp", "line_filter"]}
+{"id": "regexp_backtick", "query": "{app=\"web\"} | regexp `(?P<ip>[\\d.]+)`", "expect": "accept", "source": "upstream", "tags": ["pipeline", "regexp", "backtick"]}
+{"id": "regexp_no_arg_reject", "query": "{app=\"web\"} | regexp", "expect": "reject", "source": "upstream", "tags": ["pipeline", "regexp", "error"]}
+{"id": "regexp_unquoted_arg_reject", "query": "{app=\"web\"} | regexp method", "expect": "reject", "source": "upstream", "tags": ["pipeline", "regexp", "error"]}
+{"id": "pattern_basic", "query": "{app=\"web\"} | pattern \"<_> <method> <path>\"", "expect": "accept", "source": "upstream", "tags": ["pipeline", "pattern"]}
+{"id": "pattern_backtick", "query": "{app=\"web\"} | pattern `<ip> - <_>`", "expect": "accept", "source": "upstream", "tags": ["pipeline", "pattern", "backtick"]}
+{"id": "pattern_no_arg_reject", "query": "{app=\"web\"} | pattern", "expect": "reject", "source": "upstream", "tags": ["pipeline", "pattern", "error"]}
+{"id": "pattern_unquoted_arg_reject", "query": "{app=\"web\"} | pattern method", "expect": "reject", "source": "upstream", "tags": ["pipeline", "pattern", "error"]}

@@ -1,0 +1,41 @@
+name: oss-publish
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_run_id:
+        description: Reviewed candidate workflow run ID for this exact commit
+        required: true
+        type: string
+      candidate_run_attempt:
+        description: Reviewed attempt number within the candidate run
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: oss-publication
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main' && vars.OSS_PUBLIC_RELEASE_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: public-release
+    permissions:
+      contents: write
+      actions: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify approved candidate and publish allowlisted packages
+        env:
+          OSS_SOURCE_SHA: ${{ github.sha }}
+          OSS_CANDIDATE_RUN_ID: ${{ inputs.candidate_run_id }}
+          OSS_CANDIDATE_RUN_ATTEMPT: ${{ inputs.candidate_run_attempt }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test -x scripts/oss-ci.sh
+          scripts/oss-ci.sh publish

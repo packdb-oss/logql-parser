@@ -1,0 +1,32 @@
+name: oss-security
+on:
+  pull_request:
+  push:
+    branches: [main]
+  merge_group:
+  schedule:
+    - cron: '23 7 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: oss-security-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  audit:
+    if: github.event_name != 'schedule' || github.event.repository.private == false || vars.OSS_PRIVATE_SCHEDULES_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Audit dependencies, licenses and secrets
+        env:
+          OSS_CHECK_SCOPE: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && 'full' || 'affected' }}
+          OSS_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
+          OSS_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          test -x scripts/oss-ci.sh
+          scripts/oss-ci.sh security

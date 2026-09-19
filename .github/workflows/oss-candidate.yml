@@ -1,0 +1,41 @@
+name: oss-candidate
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: oss-candidate
+  cancel-in-progress: false
+jobs:
+  candidate:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    environment: private-candidate
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Qualify exact revision and build candidate
+        env:
+          OSS_CHECK_SCOPE: full
+          OSS_SOURCE_SHA: ${{ github.sha }}
+        run: |
+          test -x scripts/oss-ci.sh
+          scripts/oss-ci.sh candidate
+          test -s dist/release-record.json
+      - name: Enforce bounded Actions artifact size
+        run: |
+          python3 - <<'PYCODE'
+          from pathlib import Path
+          total = sum(p.stat().st_size for p in Path("dist").rglob("*") if p.is_file())
+          if total > 100 * 1024 * 1024:
+              raise SystemExit("Candidate exceeds 100 MiB: use reviewed release asset storage")
+          PYCODE
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: candidate-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 3

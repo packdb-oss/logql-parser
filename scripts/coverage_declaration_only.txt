@@ -1,0 +1,5 @@
+# Files with no executable statements, verified by scripts/coverage_gate.py (rule C3).
+# path<TAB>reason
+src/lib.rs	crate root: module declarations, re-exports and lint attributes
+src/error.rs	error enum whose Display impl is derived by thiserror
+src/ast/mod.rs	module declaration only

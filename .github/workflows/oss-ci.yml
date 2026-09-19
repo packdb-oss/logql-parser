@@ -1,0 +1,39 @@
+name: oss-ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+  merge_group:
+  schedule:
+    - cron: '41 6 * * 2'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: oss-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  gates:
+    if: github.event_name != 'schedule' || github.event.repository.private == false || vars.OSS_PRIVATE_SCHEDULES_ENABLED == 'true'
+    name: ${{ matrix.gate }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        gate: [checks, coverage, compatibility]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Run required repository gate
+        env:
+          OSS_CHECK_SCOPE: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && 'full' || 'affected' }}
+          OSS_GATE: ${{ matrix.gate }}
+          OSS_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
+          OSS_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          test -x scripts/oss-ci.sh
+          scripts/oss-ci.sh "$OSS_GATE"
