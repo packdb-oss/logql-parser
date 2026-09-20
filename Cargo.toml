@@ -1,12 +1,12 @@
 [package]
-name = "packdb-logql-parser"
-version = "0.1.0"
+name = "logql-parser"
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.94.1"
 description = "A dependency-light parser for the LogQL log query language"
 license = "Apache-2.0"
 repository = "https://github.com/packdb-oss/logql-parser"
-documentation = "https://docs.rs/packdb-logql-parser"
+documentation = "https://docs.rs/logql-parser"
 readme = "README.md"
 keywords = ["logql", "loki", "parser", "logs", "query"]
 categories = ["parser-implementations"]
