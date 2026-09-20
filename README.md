@@ -1,4 +1,4 @@
-# logql-parser
+# packdb-logql-parser
 
 A parser for [LogQL](https://grafana.com/docs/loki/latest/query/), the log query
 language used by Grafana Loki. It turns a query string into a typed syntax tree
@@ -15,11 +15,11 @@ release of this repository:
 
 ```toml
 [dependencies]
-logql-parser = { git = "https://github.com/packdb-oss/logql-parser", tag = "v0.2.0" }
+packdb-logql-parser = { git = "https://github.com/packdb-oss/logql-parser", tag = "v0.1.0" }
 ```
 
 ```rust
-use logql_parser::{ast::syntax::Expr, parse, ParseError};
+use packdb_logql_parser::{ast::syntax::Expr, parse, ParseError};
 
 match parse(r#"sum by (status) (rate({app="web"} |= "error" [5m]))"#) {
     Ok(Expr::Metric(query)) => println!("{:?}", query.range_aggregation.function),

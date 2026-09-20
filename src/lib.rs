@@ -16,7 +16,7 @@
 //! engine.
 //!
 //! ```
-//! use logql_parser::{ast::syntax::Expr, parse};
+//! use packdb_logql_parser::{ast::syntax::Expr, parse};
 //!
 //! let expr = parse(r#"{service_name="web"} |= "error""#).unwrap();
 //! assert!(matches!(expr, Expr::Log(_)));
