@@ -13,8 +13,11 @@ included.
 - `LICENSE` is the Apache License 2.0.
 - Policy documents come from the PackDB open source standards kit.
 
-Changes made during extraction: standalone package metadata (published under
-the name `packdb-logql-parser`), added or corrected documentation comments,
+This inventory describes the initial export commit. Later changes, including
+the package rename to `logql-parser` in 0.2.0, are in the repository history.
+
+Changes made during extraction: standalone package metadata, added or corrected
+documentation comments,
 ten corpus cases renamed so their ids and tags describe this parser's behaviour,
 standalone corpus and adversarial tests, a repository CI adapter, and the policy
 documents. Parsing behaviour is unchanged.

@@ -16,7 +16,7 @@
 use std::collections::HashSet;
 use std::path::Path;
 
-use packdb_logql_parser::parse;
+use logql_parser::parse;
 
 #[derive(Debug, serde::Deserialize)]
 #[serde(deny_unknown_fields)]

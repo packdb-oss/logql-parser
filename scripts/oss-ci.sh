@@ -14,7 +14,7 @@
 set -euo pipefail
 
 readonly MSRV="1.94.1"
-readonly PACKAGE="packdb-logql-parser"
+readonly PACKAGE="logql-parser"
 # Pinned tool versions. Changing one is a reviewed change to this file.
 readonly CARGO_LLVM_COV_VERSION="0.9.1"
 readonly CARGO_AUDIT_VERSION="0.22.2"
@@ -289,7 +289,7 @@ import json, subprocess, sys
 sha, version, run_id, attempt = sys.argv[1:5]
 rustc = subprocess.run(["rustc", "--version"], capture_output=True, text=True, check=True).stdout.strip()
 print(json.dumps({
-    "package": "packdb-logql-parser",
+    "package": "logql-parser",
     "version": version,
     "source_sha": sha,
     "toolchain": rustc,

@@ -10,7 +10,7 @@
 
 use std::path::Path;
 
-use packdb_logql_parser::parse;
+use logql_parser::parse;
 
 fn corpus_queries() -> Vec<String> {
     let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/corpus/parser_cases.jsonl");
