@@ -168,6 +168,7 @@ cmd_checks() {
     changed_files "$changed"
     check_policy
     check_action_pins
+    python3 scripts/check_source_headers.py
     python3 scripts/export_clean.py
     python3 scripts/coverage_gate.py --self-test
     check_corpus_manifest
