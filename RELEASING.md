@@ -41,7 +41,7 @@ crates.io private.
 
 ## Publish
 
-The owner and independent reviewer check CI, source/asset provenance, contacts,
+The release owner records a review of CI, source/asset provenance, contacts,
 license obligations and advertised limits. Review old private artifacts and history
 before the separate repository-visibility change. Apache-2.0 requires carrying the
 license and applicable notices; preserve origin and modified-file notices where
@@ -82,8 +82,9 @@ revoke/rotate immediately: yanking cannot remove them from consumers. Publish se
 advisories through the coordinated process. Storage downgrades require an explicitly
 tested compatibility path; binary replacement alone is not rollback.
 
-Maintain at least two trusted human registry owners and a verified organization
-team where supported. Document owner recovery and revoke departing access. Separate
+Name an accountable registry owner and document owner recovery. Additional trusted
+owners and an organization team are welcome but are not release prerequisites.
+Revoke departing access. Separate
 build, candidate upload and public publication permissions; never give fork PRs
 release credentials. Follow docs/WORKFLOWS.md for required jobs and activation checks.
 
