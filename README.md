@@ -10,8 +10,8 @@ as a standalone library.
 
 ## Usage
 
-The crate is not yet published to crates.io. Until then, depend on a tagged
-release of this repository:
+Use a tagged source release of this repository. The crate is not published to
+crates.io:
 
 ```toml
 [dependencies]
