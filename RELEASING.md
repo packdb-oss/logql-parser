@@ -1,10 +1,11 @@
 # Releasing
 
 Only named release maintainers may publish. All packages stay `publish = false`
-during private staging. Public publishing requires a reviewed allowlist change,
-verified registry ownership and a release record for the exact commit. Never run
-an unqualified workspace-wide publish. Repository visibility does not make
-crates.io private.
+until registry publication is explicitly enabled and qualified. Publishing to
+crates.io requires a reviewed allowlist change, verified registry ownership and
+a release record for the exact commit. Never run an unqualified workspace-wide
+publish. Repository visibility, GitHub releases and crates.io publication are
+separate decisions; crates.io is public.
 
 ## Prepare and rehearse
 
