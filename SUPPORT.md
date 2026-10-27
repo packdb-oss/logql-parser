@@ -8,5 +8,5 @@ follow SECURITY.md and conduct reports follow CODE_OF_CONDUCT.md.
 Support is community best effort. README defines supported platforms, feature flags,
 protocol versions and known limitations. Where substantiated, “used in production”
 describes deployment use only, with no quality, HA or other commercial guarantee.
-Paid PackDB services have separate support terms. Maintainers may
-close duplicate, unreproducible, off-topic or unsupported requests with an explanation.
+Maintainers may close duplicate, unreproducible, off-topic or unsupported requests
+with an explanation.

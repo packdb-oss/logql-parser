@@ -94,5 +94,4 @@ release credentials. Follow docs/WORKFLOWS.md for required jobs and activation c
 Describe capabilities and observed limitations without maturity or production-quality
 claims. “Used in production” is permitted only with recorded evidence for that
 component/version lineage; it provides no quality, HA, fitness, support or commercial
-guarantee. Do not imply deployment usage merely from a passing workflow. Internal
-commercial builds and guarantees, if any, are managed separately by the `packdb` org.
+guarantee. Do not imply deployment usage merely from a passing workflow.
