@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Decode double-quoted selector and pipeline values once, preserving raw-string
+  backslashes and rejecting malformed escapes.
+- Detect selector operators before the value so operator-like text inside a
+  service or label value cannot change the matcher.
+- Reject non-UTF-8 byte-escape results because AST values are UTF-8 strings.
+
 ## 0.1.1
 
 - Replace the LICENSE file with the verbatim Apache License 2.0 text. Earlier

@@ -1160,35 +1160,42 @@ fn split_on_unquoted_comma(body: &str) -> Vec<&str> {
 }
 
 fn parse_single_matcher(s: &str) -> Result<LabelMatcher, ParseError> {
-    let (name, op, rest) = if let Some(pos) = s.find("=~") {
-        (&s[..pos], MatchOp::Re, &s[pos + 2..])
-    } else if let Some(pos) = s.find("!~") {
-        (&s[..pos], MatchOp::Nre, &s[pos + 2..])
-    } else if let Some(pos) = s.find("!=") {
-        (&s[..pos], MatchOp::Neq, &s[pos + 2..])
-    } else if let Some(pos) = s.find('=') {
-        (&s[..pos], MatchOp::Eq, &s[pos + 1..])
+    // An operator belongs to the label prefix, never to the quoted value.
+    let prefix = s.split('"').next().unwrap_or("");
+    let pos = prefix
+        .find(['=', '!'])
+        .ok_or_else(|| ParseError::Syntax(format!("no match operator found in '{s}'")))?;
+    let name = s.get(..pos).unwrap_or("").trim();
+    let tail = s.get(pos..).unwrap_or("");
+    let (op, rest) = if let Some(rest) = tail.strip_prefix("=~") {
+        (MatchOp::Re, rest)
+    } else if let Some(rest) = tail.strip_prefix("!~") {
+        (MatchOp::Nre, rest)
+    } else if let Some(rest) = tail.strip_prefix("!=") {
+        (MatchOp::Neq, rest)
+    } else if let Some(rest) = tail.strip_prefix('=') {
+        (MatchOp::Eq, rest)
     } else {
         return Err(ParseError::Syntax(format!(
             "no match operator found in '{s}'"
         )));
     };
-
-    let name = name.trim();
     let rest = rest.trim();
-
-    // Value must be quoted with double quotes.
-    if !rest.starts_with('"') || !rest.ends_with('"') || rest.len() < 2 {
+    if !rest.starts_with('"') {
         return Err(ParseError::Syntax(format!(
             "matcher value must be quoted in '{s}'"
         )));
     }
-    let value = &rest[1..rest.len() - 1];
-
+    let (value, remaining) = parse_quoted_value(rest)?;
+    if !remaining.trim().is_empty() {
+        return Err(ParseError::Syntax(format!(
+            "unexpected text after matcher value in '{s}'"
+        )));
+    }
     Ok(LabelMatcher {
         name: name.to_string(),
         op,
-        value: value.to_string(),
+        value,
     })
 }
 
@@ -1799,7 +1806,7 @@ fn parse_quoted_value(input: &str) -> Result<(String, &str), ParseError> {
     let value_start = quote.len_utf8();
     let mut end = None;
     let mut escape = false;
-    for (i, ch) in input[value_start..].char_indices() {
+    for (i, ch) in input.get(value_start..).unwrap_or("").char_indices() {
         if quote == '"' {
             if escape {
                 escape = false;
@@ -1820,9 +1827,84 @@ fn parse_quoted_value(input: &str) -> Result<(String, &str), ParseError> {
     let end_pos = end.ok_or_else(|| {
         ParseError::Syntax(format!("unterminated string in line filter: '{input}'"))
     })?;
-    let value = input[value_start..end_pos].to_string();
+    let contents = input.get(value_start..end_pos).unwrap_or("");
+    let value = if quote == '`' {
+        contents.replace('\r', "")
+    } else {
+        decode_interpreted_string(contents)?
+    };
     let remaining = input.get(end_pos + quote.len_utf8()..).unwrap_or("");
     Ok((value, remaining))
+}
+
+/// Decode Go-style interpreted-string escapes once. Byte escapes must together
+/// form UTF-8, because AST values are Rust strings rather than arbitrary bytes.
+fn decode_interpreted_string(value: &str) -> Result<String, ParseError> {
+    let mut bytes = Vec::with_capacity(value.len());
+    let mut chars = value.chars();
+    while let Some(ch) = chars.next() {
+        if ch == '\n' {
+            return Err(ParseError::Syntax(
+                "newline in interpreted string".to_string(),
+            ));
+        }
+        if ch != '\\' {
+            let mut encoded = [0; 4];
+            bytes.extend_from_slice(ch.encode_utf8(&mut encoded).as_bytes());
+            continue;
+        }
+        let escaped = chars.next().ok_or_else(invalid_string_escape)?;
+        let byte = match escaped {
+            'a' => 7,
+            'b' => 8,
+            'f' => 12,
+            'n' => b'\n',
+            'r' => b'\r',
+            't' => b'\t',
+            'v' => 11,
+            '\\' => b'\\',
+            '"' => b'"',
+            'x' => u8::try_from(read_escape_digits(&mut chars, 16, 2)?)
+                .map_err(|_| invalid_string_escape())?,
+            '0'..='7' => {
+                let high = u32::from(escaped) - u32::from('0');
+                u8::try_from(high * 64 + read_escape_digits(&mut chars, 8, 2)?)
+                    .map_err(|_| invalid_string_escape())?
+            }
+            'u' | 'U' => {
+                let width = if escaped == 'u' { 4 } else { 8 };
+                let codepoint = read_escape_digits(&mut chars, 16, width)?;
+                let scalar = char::from_u32(codepoint).ok_or_else(invalid_string_escape)?;
+                let mut encoded = [0; 4];
+                bytes.extend_from_slice(scalar.encode_utf8(&mut encoded).as_bytes());
+                continue;
+            }
+            _ => return Err(invalid_string_escape()),
+        };
+        bytes.push(byte);
+    }
+    String::from_utf8(bytes)
+        .map_err(|_| ParseError::Syntax("string escapes do not form UTF-8".to_string()))
+}
+
+fn invalid_string_escape() -> ParseError {
+    ParseError::Syntax("invalid escape in interpreted string".to_string())
+}
+
+fn read_escape_digits(
+    chars: &mut std::str::Chars<'_>,
+    radix: u32,
+    width: usize,
+) -> Result<u32, ParseError> {
+    let mut value = 0u32;
+    for _ in 0..width {
+        let digit = chars
+            .next()
+            .and_then(|ch| ch.to_digit(radix))
+            .ok_or_else(invalid_string_escape)?;
+        value = value * radix + digit;
+    }
+    Ok(value)
 }
 
 #[cfg(test)]

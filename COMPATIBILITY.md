@@ -19,6 +19,20 @@ unrecognised construct. "Rejected" means `parse` returns an error.
 | Binary operators | `+ - * / % ^`; `== != > >= < <=` with optional `bool`; `and`, `or`, `unless`; `on(…)`/`ignoring(…)` with `group_left(…)`/`group_right(…)` |
 | Literals | numbers, `NaN`, `Inf`, unary minus, `vector(<constant expression>)` |
 
+## String values
+
+Double-quoted strings decode [Go interpreted-string escapes](https://go.dev/ref/spec#String_literals)
+once in selectors and pipeline stages. A literal backslash must therefore be
+escaped as `\\`; backtick pipeline strings keep backslashes literally. Raw-string
+carriage returns are discarded. Regex backslashes require the usual extra
+escaping in double-quoted strings, or a backtick string.
+
+The AST stores UTF-8 `String` values. Byte escapes that do not together produce
+valid UTF-8 are rejected rather than replaced or interpreted as Unicode scalars.
+Invalid or incomplete escapes and text after a selector's quoted value are errors.
+Matcher operators are read from the label prefix, so `a!=b`, `a=~b` and `a!~b`
+inside a quoted value remain literal text.
+
 ## Accepted here, rejected by Loki's validation
 
 The parser checks syntax only. Loki also rejects the following well-formed

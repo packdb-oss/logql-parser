@@ -137,3 +137,9 @@
 {"id": "pattern_backtick", "query": "{app=\"web\"} | pattern `<ip> - <_>`", "expect": "accept", "source": "upstream", "tags": ["pipeline", "pattern", "backtick"]}
 {"id": "pattern_no_arg_reject", "query": "{app=\"web\"} | pattern", "expect": "reject", "source": "upstream", "tags": ["pipeline", "pattern", "error"]}
 {"id": "pattern_unquoted_arg_reject", "query": "{app=\"web\"} | pattern method", "expect": "reject", "source": "upstream", "tags": ["pipeline", "pattern", "error"]}
+{"id": "selector_operator_in_value_ne", "query": "{app=\"a!=b\"}", "expect": "accept", "source": "regression", "tags": ["escaping", "literal-values"]}
+{"id": "selector_operator_in_value_re", "query": "{app=\"a=~b\"}", "expect": "accept", "source": "regression", "tags": ["escaping", "literal-values"]}
+{"id": "selector_operator_in_value_nre", "query": "{app=\"a!~b\"}", "expect": "accept", "source": "regression", "tags": ["escaping", "literal-values"]}
+{"id": "selector_invalid_escape", "query": "{app=\"bad\\q\"}", "expect": "reject", "source": "regression", "tags": ["escaping", "literal-values"]}
+{"id": "line_filter_invalid_escape", "query": "{app=\"web\"} |= \"bad\\q\"", "expect": "reject", "source": "regression", "tags": ["escaping", "literal-values"]}
+{"id": "selector_trailing_quoted_junk", "query": "{app=\"a\"junk\"b\"}", "expect": "reject", "source": "regression", "tags": ["escaping", "literal-values"]}
